@@ -6,10 +6,8 @@ services:
     command:
       - "--api"
       - "--entrypoints=Name:http Address::80 Redirect.EntryPoint:https"
-      # - "--entrypoints=Name:http Address::80 "
       - "--entrypoints=Name:https Address::443 TLS"
       - "--defaultentrypoints=http,https"
-      # - "--defaultentrypoints=http"
       - "--acme"
       - "--acme.storage=/etc/traefik/acme"
       - "--acme.entryPoint=https"
@@ -23,7 +21,6 @@ services:
       - "--docker.watch"
       - "--docker.exposedbydefault=false"
       - "--logLevel=WARN"
-      # - "--accesslogsfile=/dev"
  
     networks:
       - webgateway
