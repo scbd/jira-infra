@@ -1,0 +1,18 @@
+version: '2.4'
+
+services:
+  ui:
+    image: portainer/portainer
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    ports:
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    cpu_shares: 25
+    mem_limit: '500M'
+    memswap_limit: '2G'
+
+volumes:
+  portainer-data:

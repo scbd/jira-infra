@@ -1,0 +1,66 @@
+version: '2.4'
+
+services:
+  web:
+    image: blacklabelops/jira
+    networks:
+      - net
+      - webgateway
+    volumes:
+      - 'jira-data:/var/atlassian/jira'
+    environment:
+      - 'JIRA_DATABASE_URL=mysql://jira@mysql/jiradb'
+      - 'JIRA_DB_PASSWORD=${MYSQL_PASSWORD}'
+      - 'SETENV_JVM_MINIMUM_MEMORY=1g'
+      - 'SETENV_JVM_MAXIMUM_MEMORY=2g'
+      - 'JIRA_PROXY_NAME=jira.cbd.int'
+      - 'JIRA_PROXY_PORT=443'
+      - 'JIRA_PROXY_SCHEME=https'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500k"
+        max-file: "50"
+    labels:
+      - "blacklabelops.description=Atlassian Jira"
+      - "blacklabelops.service=jira"
+      - "traefik.enable=true"
+      - "traefik.port=8080"
+      - "traefik.backend=jira"
+      - "traefik.docker.network=webgateway"
+      - "traefik.frontend.rule=Host: jira.cbd.int"   
+    restart: always
+    cpu_shares: 75
+    cpu_count: 4
+    mem_limit: '4G'
+    memswap_limit: '12G'
+
+
+  mysql:
+    image: mysql:5.6
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_bin --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0
+    networks:
+      - net
+    environment:
+      MYSQL_DATABASE: 'jiradb'
+      MYSQL_USER: 'jira'
+      MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
+      MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD}'
+    volumes:
+      - 'mysql-data:/var/lib/mysql'
+    restart: always
+    cpu_shares: 25
+    cpu_count: 4
+    mem_limit: '2G'
+    memswap_limit: '6G'
+
+
+networks:
+  net:
+  webgateway:
+    external: true
+volumes:
+  jira-data:
+    external: true
+  mysql-data:
+    external: true
